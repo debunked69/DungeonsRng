@@ -50,49 +50,38 @@ function autoallpotionfunction()
     end)
 end
 
-local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "SolixHub [Free] | Dungeon RNG", HidePremium = false, SaveConfig = true, ConfigFolder = "SolixHub"})
 
-local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
-local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
-local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 
-local Window = Library:CreateWindow({
-    Title = 'SolixHub [Free] | Dungeons RNG',
-    Center = true,
-    AutoShow = true,
-    TabPadding = 8,
-    MenuFadeTime = 0.2
+
+local Tab = Window:MakeTab({
+	Name = "Main",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
 })
 
-local Tabs = {
-    Main = Window:AddTab('Main'),
-    ['UI Settings'] = Window:AddTab('UI Settings'),
-}
+local Section = Tab:AddSection({
+	Name = "Potions"
 
-local LeftGroupBox = Tabs.Main:AddLeftGroupbox('Groupbox')
+})
 
-LeftGroupBox:AddToggle('autopickup', {
-    Text = 'Auto Pickup Potions',
-    Default = false,
-    Tooltip = '',
-
-    Callback = function(Value)
-        autopickuptoggle = Value
+Tab:AddToggle({
+	Name = "Auto Pickup Potions!",
+	Default = false,
+	Callback = function(Value)
+		autopickuptoggle = Value
         if autopickuptoggle then
             autopickupfunction()
         end
-    end
+	end    
 })
 
-LeftGroupBox:AddDropdown('Pick Potion', {
-    Values = { 'None','Luck', 'Speed', 'Shiny' },
-    Default = 1,
-    Multi = false,
-    Tooltip = '',
-
-    Text = 'Pick Potion',
-
-    Callback = function(Value)
+Tab:AddDropdown({
+	Name = "Pick Potion",
+	Default = "1",
+	Options = {"None","Luck", "Speed", "Shiny"},
+	Callback = function(Value)
         if Value == "Speed" then
             _G.potion = "RollSpeed"
         elseif Value == "Luck" then
@@ -100,27 +89,23 @@ LeftGroupBox:AddDropdown('Pick Potion', {
         elseif Value == "Shiny" then
             _G.potion = "Shiny"
         end
-    end
+    end 
 })
 
-LeftGroupBox:AddToggle('autopotion', {
-    Text = 'Auto Use Potion',
-    Default = false,
-    Tooltip = '',
-
-    Callback = function(Value)
+Tab:AddToggle({
+	Name = "Auto Use Potion",
+	Default = false,
+	Callback = function(Value)
         autopotion = Value
         if autopotion then
             autopotionfunction()
         end
-    end
+    end 
 })
 
-LeftGroupBox:AddToggle('autoallpotion', {
-    Text = 'Auto All Potions',
-    Default = false,
-    Tooltip = '',
-
+Tab:AddToggle({
+	Name = "Auto All Potions",
+	Default = false,
     Callback = function(Value)
         autoall = Value
         if autoall then
@@ -130,67 +115,7 @@ LeftGroupBox:AddToggle('autoallpotion', {
 })
 
 
-
-
-Library:SetWatermarkVisibility(true)
-
-
-local FrameTimer = tick()
-local FrameCounter = 0;
-local FPS = 60;
-
-local WatermarkConnection = game:GetService('RunService').RenderStepped:Connect(function()
-    FrameCounter += 1;
-
-    if (tick() - FrameTimer) >= 1 then
-        FPS = FrameCounter;
-        FrameTimer = tick();
-        FrameCounter = 0;
-    end;
-
-    Library:SetWatermark(('SolixHub | %s fps | %s ms'):format(
-        math.floor(FPS),
-        math.floor(game:GetService('Stats').Network.ServerStatsItem['Data Ping']:GetValue())
-    ));
-end);
-
-Library.KeybindFrame.Visible = true; 
-
-Library:OnUnload(function()
-    WatermarkConnection:Disconnect()
-
-    print('Unloaded!')
-    Library.Unloaded = true
-end)
-
-
-local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
-
-
-MenuGroup:AddButton('Unload', function() Library:Unload() end)
-MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'End', NoUI = true, Text = 'Menu keybind' })
-
-Library.ToggleKeybind = Options.MenuKeybind 
+OrionLib:Init()
 
 
 
--- Hand the library over to our managers
-ThemeManager:SetLibrary(Library)
-SaveManager:SetLibrary(Library)
-
-
-SaveManager:IgnoreThemeSettings()
-
-
-SaveManager:SetIgnoreIndexes({ 'MenuKeybind' })
-
-ThemeManager:SetFolder('SolixHub')
-SaveManager:SetFolder('SolixHub/dungeonsrng')
-
-
-SaveManager:BuildConfigSection(Tabs['UI Settings'])
-
-ThemeManager:ApplyToTab(Tabs['UI Settings'])
-
-
-SaveManager:LoadAutoloadConfig()
